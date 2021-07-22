@@ -13,16 +13,17 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  late String _search = "";
+  late String _search = "Building";
   int _offset = 0;
 
   Future<Map> _getGif() async {
     http.Response response;
-
     if (_search == "") {
+      print(1);
       response = await http.get(Uri.parse('https://api.giphy.com/v1/gifs/trending?api_key=QptEZIIGWxwJ6LTSOZ6R1R7GG3cyqxiv&limit=25&rating=g'));
     } else {
-      response = await http.get(Uri.parse('https://api.giphy.com/v1/gifs/trending?api_key=QptEZIIGWxwJ6LTSOZ6R1R7GG3cyqxiv&limit=25&rating=g'));
+      print(2);
+      response = await http.get(Uri.parse('https://api.giphy.com/v1/gifs/search?api_key=QptEZIIGWxwJ6LTSOZ6R1R7GG3cyqxiv&q=$_search&limit=25&offset=$_offset&rating=g&lang=en'));
     }
     //print(response);
     return json.decode(response.body);
@@ -57,6 +58,12 @@ class _HomePageState extends State<HomePage> {
                   border: OutlineInputBorder()),
               style: TextStyle(color: Colors.white, fontSize: 18.0),
               textAlign: TextAlign.center,
+              onSubmitted: (text){
+                setState(() {
+                  _search = text;
+                  _offset = 0;
+                });
+              },
             ),
           ),
           Expanded(
@@ -90,6 +97,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _creatGifTable(BuildContext context, AsyncSnapshot snapshot) {
+          print(snapshot.data['data'][0]['title']);
     return GridView.builder(
         padding: EdgeInsets.all(10.0),
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
