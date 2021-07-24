@@ -3,7 +3,9 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
+
 import 'package:http/http.dart' as http;
+
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -20,10 +22,10 @@ class _HomePageState extends State<HomePage> {
     http.Response response;
     if (_search == "") {
       print(1);
-      response = await http.get(Uri.parse('https://api.giphy.com/v1/gifs/trending?api_key=QptEZIIGWxwJ6LTSOZ6R1R7GG3cyqxiv&limit=25&rating=g'));
+      response = await http.get(Uri.parse('https://api.giphy.com/v1/gifs/trending?api_key=QptEZIIGWxwJ6LTSOZ6R1R7GG3cyqxiv&limit=19&rating=g'));
     } else {
       print(2);
-      response = await http.get(Uri.parse('https://api.giphy.com/v1/gifs/search?api_key=QptEZIIGWxwJ6LTSOZ6R1R7GG3cyqxiv&q=$_search&limit=25&offset=$_offset&rating=g&lang=en'));
+      response = await http.get(Uri.parse('https://api.giphy.com/v1/gifs/search?api_key=QptEZIIGWxwJ6LTSOZ6R1R7GG3cyqxiv&q=$_search&limit=19&offset=$_offset&rating=g&lang=en'));
     }
     //print(response);
     return json.decode(response.body);
@@ -95,6 +97,14 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
+  int _getCount(List data){
+    if (_search == null){
+      return data.length;
+    }else {
+      return data.length + 1;
+    }
+
+  }
 
   Widget _creatGifTable(BuildContext context, AsyncSnapshot snapshot) {
           print(snapshot.data['data'][0]['title']);
@@ -105,14 +115,34 @@ class _HomePageState extends State<HomePage> {
           crossAxisSpacing: 10.0,
           mainAxisSpacing: 10.0,
         ),
-                itemCount: snapshot.data['data'].length,
+                itemCount: _getCount(snapshot.data['data'].length),
         itemBuilder: (context, index){
+          if(_search == null || index < snapshot.data["data"].lenght )
           return GestureDetector(
             child: Image.network(snapshot.data['data'][index]['images']['original']['url'],
             height: 300.00,
             fit: BoxFit.cover,
-            ),
+
+                         ),
           );
+          else
+            return Container(
+              child: GestureDetector(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center ,
+                  children: <Widget>[
+                    Icon(Icons.add, color: Colors.white, size: 70.0,),
+                    Text("Carregar mais...",
+                    style: TextStyle(color: Colors.white, fontSize: 22.0),)
+                  ],
+                ),
+                onTap:(){
+                  setState(() {
+                    _offset +=19;
+                  });
+                },
+              ),
+            );
         }
     );
   }
